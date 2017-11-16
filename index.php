@@ -108,9 +108,8 @@ class model {
         $statement = $db->prepare($sql);
         $statement->execute();
 
-        echo 'The row with id ' . $this->id. ' has been deleted.';
-
-
+        echo 'The row with id ' . $this->id. ' has been deleted from ' . $this->tableName;
+        
     }
 }
 class account extends model {
@@ -126,7 +125,7 @@ class account extends model {
 	public function __construct()
     {
         $this->tableName = 'accounts';
-	    $this->id = '9';
+        $this->id = '9';
     }
 }
 class todo extends model {
@@ -145,7 +144,6 @@ class todo extends model {
 	
     }
 }
-
 
 class tableFunctions {
 
