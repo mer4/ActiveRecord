@@ -72,7 +72,7 @@ class todos extends collection {
 }
 class model {
     protected static $columnString;
-    protected static  $valueString;
+    protected static $valueString;
     public function save()
     {
 
@@ -81,47 +81,50 @@ class model {
             $db = dbConn::getConnection();
             $array = get_object_vars($this);
             self::$valueString = implode(', ', array_fill(0,count($array),'?'));
-
-            //  print_r($array);
-
+            //print_r($array);
             $array = array_flip($array);
             self::$columnString = implode(', ', $array);
             $sql = $this->insert();
             $statement = $db->prepare($sql);
             $statement->execute(static::$data);
             //  echo $sql;
+            echo 'A new record has been inserted into ' . static::$tableName;
+
         } else {
-            $this->update();
+
+            $db = dbConn::getConnection();
+            $sql = $this->update();
+            $statement = $db->prepare($sql);
+            $statement->execute();
+            echo 'I just updated record id=' . static::$id . ' in ' . static::$tableName;
+
         }
 
     }
     private function insert() {
 
         $sql =  "INSERT INTO ". static::$tableName. " (" . self::$columnString . ") VALUES (" . self::$valueString . ")";
-
         return $sql;
     }
     private function update() {
-        $sql = 'something';
+        $sql = "UPDATE " . static::$tableName . " SET " . static::$updateColumn . " = '" . static::$updatedInfo . "' WHERE id=" . static::$id;
         return $sql;
-        echo 'I just updated record' . $this->id;
     }
     public function delete() {
 
         $db = dbConn::getConnection();
         $tableName = get_called_class();
-        $sql = 'DELETE FROM ' . static::$tableName.' WHERE id=' . static::$id;
+        $sql = 'DELETE FROM ' . static::$tableName . ' WHERE id=' . static::$id;
         //echo $sql;
-
         $statement = $db->prepare($sql);
         $statement->execute();
 
-        echo 'The row with id ' . static::$id . ' has been deleted from ' . static::$tableName . '.<br>';
+        echo 'The record with id=' . static::$id . ' has been deleted from ' . static::$tableName;
 
     }
 }
 class account extends model {
-	public static $id = '';
+	public static $id = '6';
 
 	public $email;
 	public $fname;
@@ -133,11 +136,14 @@ class account extends model {
 
     public static $tableName = 'accounts';
 
-    static $data = array('whatever@gmail.com','First','Last','888-777-6666','1991-05-05','male','987654');
+    public static $data = array('whatever@gmail.com','First','Last','888-777-6666','1991-05-05','male','987654');
+
+    public static $updateColumn = 'phone';
+
+    public static $updatedInfo = '111-222-3333';
 
     public function __construct()
     {
-
         $this->email = 'whatever@gmail.com';
         $this->fname = 'First';
         $this->lname = 'Last';
@@ -149,7 +155,7 @@ class account extends model {
     }
 }
 class todo extends model {
-    public static $id = '18';
+    public static $id = '';
 
     public $owneremail;
     public $ownerid;
@@ -160,7 +166,7 @@ class todo extends model {
 
     public static $tableName = 'todos';
 
-    static $data = array('whatev@gmail.com','4','2017-10-24 00:00:00','2017-11-25 00:00:00','new test','0');
+    public static $data = array('whatev@gmail.com','4','2017-10-24 00:00:00','2017-11-25 00:00:00','new test','0');
 	
 	public function __construct()
     {
@@ -193,56 +199,60 @@ class tableFunctions {
 class stringFunctions {
 
     static public function headingOne($text) {
-        return '<h1>' . $text . '</h1>';
+        echo '<h1>' . $text . '</h1>';
     }
 
-    static public function printThis($inputText) {
-        return print($inputText);
+    static public function printThis($boldText) {
+        echo '<b>' . $boldText . '</b>';
     }
 }
 
+stringFunctions::headingOne('Select All Records');
+stringFunctions::printThis('All Accounts Records');
+echo '<br>';
 // this would be the method to put in the index page for accounts
 $records = accounts::findAll();
 tableFunctions::createTable($records);
-echo '<br>';
-$records = accounts::findOne(1);
-tableFunctions::createTable($records);
-echo '<br>';
-$records = accounts::findOne(3);
-tableFunctions::createTable($records);
-echo '<br>';
+stringFunctions::printThis('All Todos Records');
 // this would be the method to put in the index page for todos
 $records = todos::findAll();
 //print_r($records);
 tableFunctions::createTable($records);
-
 echo '<br>';
-$records = todos::findOne(1);
+stringFunctions::headingOne('Select One Record');
+stringFunctions::printThis('Accounts ID=2');
+$records = accounts::findOne(2);
 tableFunctions::createTable($records);
-
-echo '<br>';
-$records = todos::findOne(3);
+stringFunctions::printThis('Todos ID=2');
+$records = todos::findOne(2);
 tableFunctions::createTable($records);
-
 echo '<br>';
-
+stringFunctions::headingOne('Insert New Record');
+stringFunctions::printThis('Todo Record Data');
+echo '<br>';
 $obj = new todo;
-$obj->delete();
-
-echo '<br>';
-//$newobj = new account;
-//$newobj->delete();
-/*
-$obj = new account;
 $obj->save();
+$records = todos::findAll();
+tableFunctions::createTable($records);
+echo '<br>';
+stringFunctions::headingOne('Update Record');
+stringFunctions::printThis('Account ID=6 Phone');
+echo '<br>';
+$newobj = new account;
+$newobj->save();
+$records = accounts::findAll();
+tableFunctions::createTable($records);
+/*
+echo '<br>';
+$difobj = new todo;
+$difobj->delete();
+$records = todos::findAll();
+tableFunctions::createTable($records);
+echo '<br>';
+$othobj = new account;
+$othobj->delete();
 $records = accounts::findAll();
 tableFunctions::createTable($records);
 */
-/*
-$newobj = new todo;
-$newobj->save();
-*/
-$records = todos::findAll();
-tableFunctions::createTable($records);
 
 ?>
